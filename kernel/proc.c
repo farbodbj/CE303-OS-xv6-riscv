@@ -732,7 +732,7 @@ systop(struct top* t) {
 
   printf("name  pid  ppid  state\n");
   for(pinfo = t->p_list; pinfo < &t->p_list[offset]; pinfo++) {
-    if(proc[offset]->state != UNUSED) {  
+    if(proc[offset].state != UNUSED) {  
       printf("%s, %d, %d, %d\n", pinfo->name, pinfo->pid, pinfo->state);
     }
       

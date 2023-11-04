@@ -100,3 +100,7 @@ sys_top(void) {
 
   return out;
 }
+
+uint64 sys_history(void) {
+  return history();
+}

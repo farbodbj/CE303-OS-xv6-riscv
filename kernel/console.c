@@ -21,6 +21,7 @@
 #include "riscv.h"
 #include "defs.h"
 #include "proc.h"
+#include "console.h"
 
 #define BACKSPACE 0x100
 #define C(x)  ((x)-'@')  // Control-x
@@ -51,6 +52,16 @@ struct {
   uint w;  // Write index
   uint e;  // Edit index
 } cons;
+
+
+void updateHistory() {
+  int length = cons.e - cons.w;
+  int ind = historyBufferArray.currentHistory;
+  safestrcpy(historyBufferArray.bufferArr[ind], cons.buf + cons.w, length);
+  historyBufferArray.currentHistory = (historyBufferArray.currentHistory < MAX_HISTORY) ? (historyBufferArray.currentHistory + 1) : (0);
+  historyBufferArray.lengthArr[ind] = length;
+  historyBufferArray.numOfCommandsInMem++;
+}
 
 //
 // user write()s to the console go here.
@@ -168,6 +179,9 @@ consoleintr(int c)
       if(c == '\n' || c == C('D') || cons.e-cons.r == INPUT_BUF_SIZE){
         // wake up consoleread() if a whole line (or end-of-file)
         // has arrived.
+  
+        updateHistory();
+        
         cons.w = cons.e;
         wakeup(&cons.r);
       }
@@ -189,4 +203,11 @@ consoleinit(void)
   // to consoleread and consolewrite.
   devsw[CONSOLE].read = consoleread;
   devsw[CONSOLE].write = consolewrite;
+}
+
+int history() {
+  for(int i = 0; i < historyBufferArray.numOfCommandsInMem; i++) {
+    printf("%d %s\n", i, historyBufferArray.bufferArr[i]);
+  }
+  return 0;
 }
