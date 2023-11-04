@@ -1,0 +1,21 @@
+{
+    "files.associations": {
+        "defs.h": "c",
+        "proc.h": "c",
+        "types.h": "c",
+        "fs.h": "c",
+        "user.h": "c",
+        "atomic": "c",
+        "__config": "c",
+        "locale": "c",
+        "random": "c",
+        "iosfwd": "c",
+        "functional": "c",
+        "algorithm": "c",
+        "queue": "c",
+        "typeinfo": "c",
+        "syscall.h": "c",
+        "stat.h": "c",
+        "cstdio": "c"
+    }
+}

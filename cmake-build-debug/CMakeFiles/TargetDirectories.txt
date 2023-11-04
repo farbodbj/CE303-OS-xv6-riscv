@@ -1,0 +1,3 @@
+/media/farbod/2A8AD6C38AD68B29/Farbod/university/term 5/OS/project/xv6-riscv/cmake-build-debug/CMakeFiles/xv6_riscv.dir
+/media/farbod/2A8AD6C38AD68B29/Farbod/university/term 5/OS/project/xv6-riscv/cmake-build-debug/CMakeFiles/edit_cache.dir
+/media/farbod/2A8AD6C38AD68B29/Farbod/university/term 5/OS/project/xv6-riscv/cmake-build-debug/CMakeFiles/rebuild_cache.dir

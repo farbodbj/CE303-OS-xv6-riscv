@@ -1,3 +1,4 @@
+#define MAX_PROC_NAME_LEN 16
 // Saved registers for kernel context switches.
 struct context {
   uint64 ra;
@@ -103,5 +104,33 @@ struct proc {
   struct context context;      // swtch() here to run process
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
-  char name[16];               // Process name (debugging)
+  char name[MAX_PROC_NAME_LEN];               // Process name (debugging)
+};
+
+// process info
+// contains:
+//  char name[MAX_PROC_NAME_LEN];
+//  int pid;
+//  int ppid;
+//  enum procstate state;
+struct proc_info {
+    char name[MAX_PROC_NAME_LEN];
+    int pid;
+    int ppid;
+    enum procstate state;
+};
+
+// struct for carrying the output of top system call
+// contains:
+// long uptime;
+//  int total_process;
+//  int running_process;
+//  int sleeping_process;
+//  struct proc_info p_list[NPROC];
+struct top {
+    long uptime;
+    int total_process;
+    int running_process;
+    int sleeping_process;
+    struct proc_info p_list[NPROC];
 };

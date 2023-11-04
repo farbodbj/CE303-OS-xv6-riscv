@@ -77,6 +77,7 @@ sys_kill(void)
   return kill(pid);
 }
 
+
 // return how many clock tick interrupts have occurred
 // since start.
 uint64
@@ -88,4 +89,14 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+
+uint64 
+sys_top(void) {
+  struct top top;
+
+  top.uptime = sys_uptime();
+  int out = systop(&top);
+
+  return out;
 }

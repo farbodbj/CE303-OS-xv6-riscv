@@ -681,3 +681,62 @@ procdump(void)
     printf("\n");
   }
 }
+
+int 
+systop(struct top* t) {
+  struct proc *p;
+  struct proc_info *pinfo;
+
+
+
+  t->uptime = 0;
+  t->total_process = 0;
+  t->running_process = 0;
+  t->sleeping_process = 0;
+  
+  printf("systop called\n");
+  int offset = 0;
+  for(p = proc; p < &proc[NPROC]; p++) {
+    if(p->state == UNUSED) continue;
+    offset++;
+
+    switch (p->state) {
+      case SLEEPING: t->sleeping_process++;
+        break;
+      case RUNNING: t->running_process++;
+        break;
+      default:
+        break;
+    }
+    
+    t->total_process++;
+    
+    acquire(&p->lock);
+    safestrcpy(t->p_list[offset].name ,p->name, strlen(p->name) + 1);
+    t->p_list[offset].pid = p->pid;
+    release(&p->lock);
+
+    if(p->parent != 0) {
+      acquire(&p->parent->lock);
+      t->p_list[offset].ppid = p->parent->pid;
+      release(&p->parent->lock);
+    }  
+    else {
+      t->p_list[offset].ppid = 0;
+    }
+    
+    t->p_list[offset].state = p->state;
+  }
+
+  printf("uptime: %ld\ntotal process count: %d\nrunning: %d, sleeping:%d\n", t->uptime, t->total_process, t->running_process, t->sleeping_process);
+
+  printf("name  pid  ppid  state\n");
+  for(pinfo = t->p_list; pinfo < &t->p_list[offset]; pinfo++) {
+    if(proc[offset]->state != UNUSED) {  
+      printf("%s, %d, %d, %d\n", pinfo->name, pinfo->pid, pinfo->state);
+    }
+      
+  }
+
+  return 0;
+}
