@@ -147,7 +147,7 @@ void
 consoleintr(int c)
 {
   acquire(&cons.lock);
-
+  consputc(c);
   switch(c){
   case C('P'):  // Print process list.
     procdump();

@@ -12,7 +12,5 @@
 int
 main(void) {
     struct top t;
-
-    printf("top called\n");
     return systop(&t);
 }
