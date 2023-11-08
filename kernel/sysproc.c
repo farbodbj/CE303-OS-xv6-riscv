@@ -102,5 +102,7 @@ sys_top(void) {
 }
 
 uint64 sys_history(void) {
-  return history();
+  int param;
+  argint(0, &param);
+  return history(param);
 }

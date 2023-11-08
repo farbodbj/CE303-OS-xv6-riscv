@@ -4,6 +4,16 @@
 #include "kernel/console.h"
 
 int
-main(void) {
-    return history();
+main(int argc, char **argv) {
+  if(argc == 2) {
+    int historyId = atoi(argv[1]);
+    return history(historyId);
+  }
+  else if (argc == 1) {
+    return history(-1);
+  }
+  else {
+    printf("history command only gets one argument..\n");
+    return -1;
+  }
 }

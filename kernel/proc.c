@@ -688,7 +688,7 @@ procdump(void)
 void print_top_struct(struct top* t, int pcount) {
   printf("uptime: %lds\ntotal process count: %d\nrunning: %d, sleeping:%d\n", t->uptime/10, t->total_process, t->running_process, t->sleeping_process);
 
-  printf("name  pid  ppid  state\n");
+  printf("name    PID     PPID      state\n");
   for(struct proc_info* pinfo = t->p_list; pinfo < &t->p_list[pcount]; pinfo++) {
       printf("%s, %d, %d, %s\n", pinfo->name, pinfo->pid, pinfo->ppid, procstate_mapper[pinfo->state]);    
   }

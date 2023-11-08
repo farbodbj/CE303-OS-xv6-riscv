@@ -147,7 +147,6 @@ void
 consoleintr(int c)
 {
   acquire(&cons.lock);
-  consputc(c);
   switch(c){
   case C('P'):  // Print process list.
     procdump();
@@ -205,9 +204,22 @@ consoleinit(void)
   devsw[CONSOLE].write = consolewrite;
 }
 
-int history() {
-  for(int i = 0; i < historyBufferArray.numOfCommandsInMem; i++) {
-    printf("%d %s\n", i, historyBufferArray.bufferArr[i]);
+void print_single_history(char *buff_array_item) {
+  printf("%s\n", buff_array_item);
+}
+
+int history(int historyId) {
+  if(historyId == -1){
+    for(int i = 0; i < historyBufferArray.numOfCommandsInMem; i++) {
+      printf("%d ", i);
+      print_single_history(historyBufferArray.bufferArr[i]);
+    }
+  }
+  else {
+    if(historyId < historyBufferArray.numOfCommandsInMem)
+      print_single_history(historyBufferArray.bufferArr[historyId]);
+    else 
+      printf("The number you've entered is larger than saved commands in history.\n");
   }
   return 0;
 }
