@@ -21,6 +21,7 @@
 #include "riscv.h"
 #include "defs.h"
 #include "proc.h"
+#include "console.h"
 
 #define BACKSPACE 0x100
 #define C(x)  ((x)-'@')  // Control-x
@@ -51,6 +52,16 @@ struct {
   uint w;  // Write index
   uint e;  // Edit index
 } cons;
+
+
+void updateHistory() {
+  int length = cons.e - cons.w;
+  int ind = historyBufferArray.currentHistory;
+  safestrcpy(historyBufferArray.bufferArr[ind], cons.buf + cons.w, length);
+  historyBufferArray.currentHistory = (historyBufferArray.currentHistory < MAX_HISTORY) ? (historyBufferArray.currentHistory + 1) : (0);
+  historyBufferArray.lengthArr[ind] = length;
+  historyBufferArray.numOfCommandsInMem++;
+}
 
 //
 // user write()s to the console go here.
@@ -136,7 +147,6 @@ void
 consoleintr(int c)
 {
   acquire(&cons.lock);
-
   switch(c){
   case C('P'):  // Print process list.
     procdump();
@@ -168,6 +178,9 @@ consoleintr(int c)
       if(c == '\n' || c == C('D') || cons.e-cons.r == INPUT_BUF_SIZE){
         // wake up consoleread() if a whole line (or end-of-file)
         // has arrived.
+  
+        updateHistory();
+        
         cons.w = cons.e;
         wakeup(&cons.r);
       }
@@ -189,4 +202,24 @@ consoleinit(void)
   // to consoleread and consolewrite.
   devsw[CONSOLE].read = consoleread;
   devsw[CONSOLE].write = consolewrite;
+}
+
+void print_single_history(char *buff_array_item) {
+  printf("%s\n", buff_array_item);
+}
+
+int history(int historyId) {
+  if(historyId == -1){
+    for(int i = 0; i < historyBufferArray.numOfCommandsInMem; i++) {
+      printf("%d ", i);
+      print_single_history(historyBufferArray.bufferArr[i]);
+    }
+  }
+  else {
+    if(historyId < historyBufferArray.numOfCommandsInMem)
+      print_single_history(historyBufferArray.bufferArr[historyId]);
+    else 
+      printf("The number you've entered is larger than saved commands in history.\n");
+  }
+  return 0;
 }

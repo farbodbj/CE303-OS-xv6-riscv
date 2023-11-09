@@ -26,6 +26,9 @@ extern char trampoline[]; // trampoline.S
 // must be acquired before any p->lock.
 struct spinlock wait_lock;
 
+
+char* procstate_mapper[6] = {"Unused", "Used", "Sleeping", "Runnable", "Running", "Zombie"};
+
 // Allocate a page for each process's kernel stack.
 // Map it high in memory, followed by an invalid
 // guard page.
@@ -680,4 +683,63 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+void print_top_struct(struct top* t, int pcount) {
+  printf("uptime: %lds\ntotal process count: %d\nrunning: %d, sleeping:%d\n", t->uptime/10, t->total_process, t->running_process, t->sleeping_process);
+
+  printf("name    PID     PPID      state\n");
+  for(struct proc_info* pinfo = t->p_list; pinfo < &t->p_list[pcount]; pinfo++) {
+      printf("%s, %d, %d, %s\n", pinfo->name, pinfo->pid, pinfo->ppid, procstate_mapper[pinfo->state]);    
+  }
+
+}
+
+
+int 
+systop(struct top* t) {
+  struct proc *p;
+
+  t->total_process = 0;
+  t->running_process = 0;
+  t->sleeping_process = 0;
+  
+  int offset = 0;
+  for(p = proc; p < &proc[NPROC]; p++) {
+    if(p->state == UNUSED) continue;
+
+    
+    switch (p->state) {
+      case SLEEPING: t->sleeping_process++;
+        break;
+      case RUNNING: t->running_process++;
+        break;
+      default:
+        break;
+    }
+    
+    t->total_process++;
+    
+    acquire(&p->lock);
+      safestrcpy(t->p_list[offset].name ,p->name, strlen(p->name) + 1);
+      t->p_list[offset].pid = p->pid;
+    release(&p->lock);
+
+    
+    if(p->parent != 0) {
+      acquire(&p->parent->lock);
+        t->p_list[offset].ppid = p->parent->pid;
+      release(&p->parent->lock);  
+    }  
+    else {
+      t->p_list[offset].ppid = 0;
+    }
+    
+    
+    t->p_list[offset].state = p->state;
+    offset++;
+  }
+
+  print_top_struct(t, offset);
+  return 0;
 }
