@@ -475,3 +475,5 @@ MigrationBackup/
 
 # End of https://www.toptal.com/developers/gitignore/api/clion,vs
 
+**/.vscode
+
