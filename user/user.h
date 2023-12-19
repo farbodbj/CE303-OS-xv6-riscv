@@ -25,6 +25,7 @@ int sleep(int);
 int uptime(void);
 int systop(struct top*);
 int history(int);
+int clone(void* (void*), void* , void* );
 
 // ulib.c
 int stat(const char*, struct stat*);

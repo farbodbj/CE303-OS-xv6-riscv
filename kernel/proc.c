@@ -743,3 +743,7 @@ systop(struct top* t) {
   print_top_struct(t, offset);
   return 0;
 }
+
+int clone(void* (func)(void*), void* arg, void* caller_stack) {
+  
+}
