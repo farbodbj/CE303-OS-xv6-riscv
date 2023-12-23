@@ -1,7 +1,6 @@
 #include "kernel/types.h"
+#include "kernel/stat.h"
 #include "kernel/param.h"
-#include "kernel/spinlock.h"
-#include "kernel/sleeplock.h"
 #include "kernel/riscv.h"
 #include "kernel/defs.h"
 extern int thread_switch(struct context*, struct context*);
