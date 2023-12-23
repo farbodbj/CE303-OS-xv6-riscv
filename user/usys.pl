@@ -38,3 +38,4 @@ entry("sleep");
 entry("uptime");
 entry("systop");
 entry("history");
+# entry("uthreadlib");
