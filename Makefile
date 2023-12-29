@@ -138,8 +138,7 @@ UPROGS=\
 	$U/_zombie\
 	$U/_top\
 	$U/_history\
-	$U/_uthreadlib
-
+	$U/_uthreadlib\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)

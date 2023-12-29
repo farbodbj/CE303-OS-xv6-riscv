@@ -1,9 +1,8 @@
 #include "kernel/types.h"
 #include "kernel/stat.h"
+#include "user.h"
 #include "kernel/param.h"
 #include "kernel/riscv.h"
-#include "kernel/defs.h"
-extern int thread_switch(struct context*, struct context*);
 
 
 #define FREE        0X0
@@ -12,6 +11,7 @@ extern int thread_switch(struct context*, struct context*);
 #define STACK_SIZE  (1 << 13)
 #define MAX_THREAD  4
 
+#define TIME_QUANTUM 10
 
 // Saved registers for kernel context switches
 struct context {
@@ -43,8 +43,4 @@ struct thread {
 struct thread all_thread[MAX_THREAD];
 struct thread *current_thread;
 
-// extern void thread_switch(struct context*, struct context*);
-// extern void thread_create(void (*func)());
-// extern void thread_join(void);
-// extern void thread_init(void);
-// extern void thread_yield(void);
+void thread_switch(struct context*, struct context*);

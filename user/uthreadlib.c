@@ -1,47 +1,7 @@
-#include "kernel/types.h"
-#include "kernel/stat.h"
-#include "user.h"
-#include "kernel/param.h"
-#include "kernel/riscv.h"
+#include "uthreadlib.h"
 
-
-struct context {
-   uint64 ra;
-   uint64 sp;
-   uint64 s0;
-   uint64 s1;
-   uint64 s2;
-   uint64 s3;
-   uint64 s4;
-   uint64 s5;
-   uint64 s6;
-   uint64 s7;
-   uint64 s8;
-   uint64 s9;
-   uint64 s10;
-   uint64 s11;
-};
-
-#define FREE        0X0
-#define RUNNING     0X1
-#define RUNNABLE    0X2
-#define STACK_SIZE  (1 << 13)
-#define MAX_THREAD  4
-
-// Thread structure
-struct thread {
-   char stack[STACK_SIZE];
-   int state;
-   struct context context;
-};
-
-
-// Array of all threads
-struct thread all_thread[MAX_THREAD];
-struct thread *current_thread;
-
-void thread_switch(struct context*, struct context*);
-
+// the following does virtually nothing, but it takes a long time to execute
+#define LONG_OPERATION(n) for(int i = 0; i < n*1000000; i++) __asm__ volatile("nop");
 
 void thread_init(void) {
    current_thread = all_thread;
@@ -97,13 +57,18 @@ void thread_join(void) {
   }
 }
 
-void function() {
+// this function is both the scheduler and the operation for showing the thread's progress
+void thread_function() {
     int start = uptime();
     int thread_id = current_thread->context.s0;
     int counter = current_thread->context.s1;
     for(; counter <= 100; counter++){
+
+        LONG_OPERATION(counter);
         printf("thread_%d %d\n", thread_id, counter);
-        if(uptime() - start >= 1) {
+
+        // the if statement performs the role of a scheduler tick interrupt
+        if(uptime() - start >= TIME_QUANTUM) {
             start = uptime();
             thread_yield();
         }
@@ -117,9 +82,9 @@ void function() {
 int main(int *argc, char **argv[]) {
     thread_init();
 
-    thread_create(function, 1);
-    thread_create(function, 2);
-    thread_create(function, 3);
+    thread_create(thread_function, 1);
+    thread_create(thread_function, 2);
+    thread_create(thread_function, 3);
 
     thread_schedule();
     return 0;
