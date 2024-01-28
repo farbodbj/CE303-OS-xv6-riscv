@@ -6,6 +6,8 @@
 #include "proc.h"
 #include "defs.h"
 
+#define TEST_MODE 1
+
 struct cpu cpus[NCPU];
 
 struct proc proc[NPROC];
@@ -444,20 +446,63 @@ wait(uint64 addr)
 //  - swtch to start running that process.
 //  - eventually that process transfers control
 //    via swtch back to the scheduler.
-void
+void 
 scheduler(void)
 {
-  struct proc *p;
+  struct proc *selected = 0;
+  struct proc *p = proc;
   struct cpu *c = mycpu();
-  
+  int id = cpuid();
+
   c->proc = 0;
-  for(;;){
+  DO_FOREVER {
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
 
-    for(p = proc; p < &proc[NPROC]; p++) {
-      acquire(&p->lock);
+    for (int i = 0; i < NPROC; i++) {
+      p = (p >= proc + NPROC) ? proc : p;
       if(p->state == RUNNABLE) {
+          if ((!selected) || (p->current_queue < selected->current_queue) ||
+            (p->current_queue == selected->current_queue && p->priority < selected->priority)) {
+              selected = p;
+          }
+      }
+      p++;
+    }
+
+    if (selected != 0) {
+        p = selected;
+        acquire(&p->lock);
+        if(p->state != RUNNABLE) {
+            release(&p->lock);
+            continue;
+        }
+
+        uint64 time_quantum;
+        switch(p->current_queue) {
+          case 0:
+            time_quantum = MLFQ_LEVEL_1_QUANTUM;
+            p->current_queue++;
+            break;
+        
+          case 1:
+            time_quantum = MLFQ_LEVEL_2_QUANTUM;
+            p->current_queue++;
+            break;
+      
+          default:
+            time_quantum = MLFQ_LEVEL_3_QUANTUM;
+            p->current_queue = 2; // to avoid overrunning the queue
+            break;
+        }
+        
+        set_scheduler_tick(id, time_quantum);
+
+        if (TEST_MODE) {
+            acquire(&wait_lock);
+            printf("running: %d \n", p->pid);
+            release(&wait_lock);
+        }
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
         // before jumping back to us.
@@ -465,15 +510,20 @@ scheduler(void)
         c->proc = p;
         swtch(&c->context, &p->context);
 
+        if (TEST_MODE) {
+            acquire(&wait_lock);
+            printf("stopping: %d \n", p->pid);
+            release(&wait_lock);
+        }
         // Process is done running for now.
         // It should have changed its p->state before coming back.
         c->proc = 0;
-      }
-      release(&p->lock);
+        release(&p->lock);
+        selected = 0;
+        p++;
     }
   }
 }
-
 // Switch to scheduler.  Must hold only p->lock
 // and have changed proc->state. Saves and restores
 // intena because intena is a property of this

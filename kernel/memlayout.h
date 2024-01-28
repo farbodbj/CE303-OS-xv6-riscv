@@ -65,3 +65,8 @@
 //   TRAPFRAME (p->trapframe, used by the trampoline)
 //   TRAMPOLINE (the same page as in the kernel)
 #define TRAPFRAME (TRAMPOLINE - PGSIZE)
+
+#define RR_QUANTUM 1000000
+#define MLFQ_LEVEL_1_QUANTUM 5 * RR_QUANTUM
+#define MLFQ_LEVEL_2_QUANTUM 10 * RR_QUANTUM
+#define MLFQ_LEVEL_3_QUANTUM 20 * RR_QUANTUM

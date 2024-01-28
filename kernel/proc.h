@@ -105,6 +105,9 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[MAX_PROC_NAME_LEN];               // Process name (debugging)
+  
+  uint8 current_queue;         // Current queue of the process
+  uint8 priority;              // Priority of the process
 };
 
 // process info
@@ -134,3 +137,5 @@ struct top {
     int sleeping_process;
     struct proc_info p_list[NPROC];
 };
+
+#define DO_FOREVER while(1)

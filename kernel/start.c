@@ -87,3 +87,8 @@ timerinit()
   // enable machine-mode timer interrupts.
   w_mie(r_mie() | MIE_MTIE);
 }
+
+void set_scheduler_tick(int core, uint64 quantum) {
+    uint64 *scratch = &timer_scratch[core][0];
+    scratch[4] = quantum;
+}
